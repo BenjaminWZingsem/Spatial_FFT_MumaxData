@@ -12,7 +12,7 @@ import de.erichseifert.gral.ui.InteractivePanel;
 
 public class LinePlotTest extends JFrame {
 	/**
-	 * 
+	 * Plot Data
 	 */
 	private static final long serialVersionUID = 1L;
 	DataTable data;

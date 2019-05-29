@@ -1,5 +1,9 @@
 package math;
-
+/**
+ * Find Peaks
+ * @author Benjamin
+ *
+ */
 public class PeakFinder {
 	/**
 	 * Gives a list of the positions at which peaks occur in @param data. the

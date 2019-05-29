@@ -9,7 +9,11 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import org.jtransforms.fft.DoubleFFT_1D;
-
+/**
+ * 
+ * @author Benjamin
+ *Process Data
+ */
 public class TableFileProcessor {
 	private File directory;
 	private String[] header;

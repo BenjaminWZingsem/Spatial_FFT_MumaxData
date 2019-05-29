@@ -44,7 +44,7 @@ public class AlphanumComparator implements Comparator<Object> {
 		return ch >= 48 && ch <= 57;
 	}
 
-	/**
+	/***
 	 * Length of string is passed in for improved efficiency (only need to
 	 * calculate it once)
 	 **/

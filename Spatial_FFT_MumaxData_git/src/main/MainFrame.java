@@ -26,6 +26,11 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.ItemEvent;
+/**
+ * 
+ * @author Benjamin
+ *	The GUI
+ */
 
 public class MainFrame {
 

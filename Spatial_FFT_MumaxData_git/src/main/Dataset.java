@@ -791,7 +791,7 @@ public class Dataset {
 		} else {
 			System.out.println("xnodes: " + xnodes + ", ynodes: " + ynodes + ", znodes: " + znodes + " -- total: " + (xnodes*ynodes*znodes*3*length));
 		}
-		// xGridposition, yGridposition, zGridposition, Vectorcoordinates, Time
+		// xGridposition, yGridposition, zGridposition, vectorcoordinates, Time
 		double[][][][] mList = new double[xnodes][ynodes][znodes][length];
 		mFFTY = new double[xnodes][ynodes][znodes][2*length];
 		timesteps = length;

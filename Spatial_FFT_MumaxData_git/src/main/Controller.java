@@ -301,7 +301,7 @@ public class Controller {
 	}
 
 	/**
-	 * I the kernel is of even length or larger than the input, no convolution
+	 * If the kernel is of even length or larger than the input, no convolution
 	 * will be performed
 	 * 
 	 * @param input

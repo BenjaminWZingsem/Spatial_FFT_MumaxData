@@ -1,0 +1,72 @@
+Nx := 16
+Ny := 32
+Nz := 1
+
+Setgridsize(Nx, Ny, Nz)
+Setcellsize(5e-9, 5e-9, 45e-9)
+
+EdgeSmooth = 4
+
+Ae := 1.32e-11 //J/m [1]
+Ms := 4.8e5 //A/m 
+k1c := -1.10e4 //J/m^3 [4]
+lex := Sqrt(Ae/(1/2*Mu0*pow(Ms,2))) //[2] Exchange length "soft materials" http://nmag.soton.ac.uk/nmag/0.2/manual/html/tutorial/doc.html
+alpha = 0.002
+gf := 2.1 //[4]
+muB := 9.27400968e-24
+hq := 1.054571726e-34
+gammaLL = gf*muB/hq
+
+//print("Exchange length S (m):",lex)
+
+//Geometry
+// Side lengths [m]
+particle1 := Ellipsoid(30.0416e-9, 30.0416e-9, 30.0416e-9).Transl(-10.e-9, 55.e-9, 0)
+particle2 := Ellipsoid(31.7014e-9, 31.7014e-9, 31.7014e-9).Transl(-3.07143e-9, 6.929e-9, 0)
+particle3 := Ellipsoid(30.7653e-9, 30.7653e-9, 30.7653e-9).Transl(-2.95455e-9, (65.985e-9)-(100e-9), 0)
+
+DefRegion(1, particle1)
+DefRegion(2, particle2)
+DefRegion(3, particle3)
+
+anisC1.SetRegion(1, vector(0.489082, 0.862972, -0.126801))
+anisC1.SetRegion(2, vector(0.5757, 0.79032, -0.209676))
+anisC1.SetRegion(3, vector(-0.5757, -0.79032, 0.209676))
+
+anisC2.SetRegion(1, vector(-0.653808, 0.458936, 0.601592))
+anisC2.SetRegion(2, vector(-0.578996, 0.575096, 0.577951))
+anisC2.SetRegion(3, vector(0.578996, -0.575096, -0.577951))
+
+setgeom(particle1.add(particle2).add(particle3))
+
+// Material: Fe3O4
+// Parameter
+Msat = Ms //A/m [1]
+Aex = Ae //J/m [1]
+Kc1 = k1c
+
+m = RandomMag()
+
+// applied field parameters
+theta := 25*(pi/180) // field angle
+bmax  := 0.36// applied field magnitude
+
+//driving field
+driv := 0.01 // amplitude driving field
+f    := 1.0e9 // frequency units
+fdel := 17.*f*2.*pi  // defines frequency window
+time := 1600./fdel
+toff := time/2.0 // make sinc symmetric in time
+
+outputformat = OVF1_TEXT
+
+tableadd(B_ext)
+
+B_ext=vector(bmax*cos(theta), bmax*sin(theta), 0)
+relax() //Static Relaxation
+minimize()
+run(1e-12) //Dynamic Relaxation (avoid Table artifacts). No tableautosave before this point.
+autosave(m,pi/(2*fdel))
+tableautosave(pi/(2*fdel))
+B_ext=vector(bmax*cos(theta), bmax*sin(theta), driv*sin((t-toff)*fdel)/((t-toff)*(fdel)))
+run(time)

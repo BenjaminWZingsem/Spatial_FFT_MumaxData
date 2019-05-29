@@ -1,0 +1,64 @@
+//mumax 3.10 windows_amd64 go1.11 (gc)
+//CUDA 10000 GeForce GTX 780 Ti(3072MB) cc3.5 , using CC 35  PTX
+//(c) Arne Vansteenkiste, Dynamat LAB, Ghent University, Belgium
+//This is free software without any warranty. See license.txt
+//********************************************************************//
+//  If you use mumax in any work or publication,                      //
+//  we kindly ask you to cite the references in references.bib        //
+//********************************************************************//
+//output directory: Example03.out/
+Nx := 16
+Ny := 32
+Nz := 1
+Setgridsize(Nx, Ny, Nz)
+Setcellsize(5e-9, 5e-9, 45e-9)
+EdgeSmooth = 4
+Ae := 1.32e-11
+Ms := 4.8e5
+k1c := -1.10e4
+lex := Sqrt(Ae / (1 / 2 * Mu0 * pow(Ms, 2)))
+alpha = 0.002
+gf := 2.1
+muB := 9.27400968e-24
+hq := 1.054571726e-34
+gammaLL = gf * muB / hq
+particle1 := Ellipsoid(30.0416e-9, 30.0416e-9, 30.0416e-9).Transl(-10.e-9, 55.e-9, 0)
+particle2 := Ellipsoid(31.7014e-9, 31.7014e-9, 31.7014e-9).Transl(-3.07143e-9, 6.929e-9, 0)
+particle3 := Ellipsoid(30.7653e-9, 30.7653e-9, 30.7653e-9).Transl(-2.95455e-9, (65.985e-9)-(100e-9), 0)
+DefRegion(1, particle1)
+DefRegion(2, particle2)
+DefRegion(3, particle3)
+anisC1.SetRegion(1, vector(0.489082, 0.862972, -0.126801))
+anisC1.SetRegion(2, vector(0.5757, 0.79032, -0.209676))
+anisC1.SetRegion(3, vector(-0.5757, -0.79032, 0.209676))
+anisC2.SetRegion(1, vector(-0.653808, 0.458936, 0.601592))
+anisC2.SetRegion(2, vector(-0.578996, 0.575096, 0.577951))
+anisC2.SetRegion(3, vector(0.578996, -0.575096, -0.577951))
+setgeom(particle1.add(particle2).add(particle3))
+Msat = Ms
+Aex = Ae
+Kc1 = k1c
+m = RandomMag()
+theta := 10 * (pi / 180)
+bmax := 0.36
+driv := 0.01
+f := 1.0e9
+fdel := 17. * f * 2. * pi
+time := 1600. / fdel
+toff := time / 2.0
+outputformat = OVF1_TEXT
+tableadd(B_ext)
+B_ext = vector(bmax*cos(theta), bmax*sin(theta), 0)
+relax()
+minimize()
+run(1e-12)
+autosave(m, pi/(2*fdel))
+tableautosave(pi / (2 * fdel))
+B_ext = vector(bmax*cos(theta), bmax*sin(theta), driv*sin((t-toff)*fdel)/((t-toff)*(fdel)))
+run(time)
+//********************************************************************//
+//Please cite the following references, relevant for your simulation: //
+//See bibtex file in output folder for justification.                 //
+//********************************************************************//
+//   * Exl et al., J. Appl. Phys. 115, 17D118 (2014).
+//   * Vansteenkiste et al., AIP Adv. 4, 107133 (2014).

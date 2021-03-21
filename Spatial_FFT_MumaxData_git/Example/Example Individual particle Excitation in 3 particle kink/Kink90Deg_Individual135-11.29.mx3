@@ -1,0 +1,102 @@
+//Measure runtime
+ti := now().Nanosecond()
+
+Nx := 8
+Ny := 8
+Nz := 1
+
+Setgridsize(Nx, Ny, Nz)
+Setcellsize(10e-9, 10e-9, 20e-9)
+
+EdgeSmooth = 4
+
+Ae := 1.32e-11 //J/m [1]
+Ms := 4.8e5 //A/m 
+//k1c := -1.10e4 //J/m^3 [4]
+lex := Sqrt(Ae/(1/2*Mu0*pow(Ms,2))) //[2] Exchange length "soft materials" http://nmag.soton.ac.uk/nmag/0.2/manual/html/tutorial/doc.html
+alpha = 0.002
+gf := 2.1 //[4]
+muB := 9.27400968e-24
+hq := 1.054571726e-34
+gammaLL = gf*muB/hq
+
+//print("Exchange length S (m):",lex)
+
+//Geometry
+// Side lengths [m]
+particle1 := Cuboid(20e-9, 20e-9, 20e-9).Transl(10e-9, -20e-9, 0)
+particle2 := Cuboid(20e-9, 20e-9, 20-9).Transl(-20e-9, 10e-9, 0)
+particle3 := Cuboid(20e-9, 20e-9, 20e-9).Transl(10e-9, 10e-9, 0)
+
+setgeom(particle1.add(particle2).add(particle3))
+
+// Material: Fe3O4
+// Parameter
+Msat = Ms //A/m [1]
+Aex = Ae //J/m [1]
+
+m = RandomMag()
+
+// applied field loop parameters
+theta := 135*(pi/180) // field angle
+bmax  := 0.36// max field for loop
+
+//driving field
+driv := 0.0001 // amplitude driving field
+f    := 11.29e9 // frequency units 11.06, 10.48 @ 45° & 11.29, 10.87 @ 135
+w    := 2*pi*f
+time := 100/f
+
+
+outputformat = OVF1_TEXT
+
+tableadd(B_ext)
+
+phtl:= 0
+phtr:= 0
+phbr:= 0
+
+amptl:= 1
+amptr:= 0
+ampbr:= 1
+
+B_ext=vector(bmax*cos(theta), bmax*sin(theta), 0)
+relax() //Static Relaxation
+minimize()
+run(1e-12) //Dynamic Relaxation (avoid Table artifacts). No tableautosave before this point.
+
+B_ext=vector(bmax*cos(theta), bmax*sin(theta),0)
+masktl := newVectorMask(Nx, Ny, 1)
+masktr := newVectorMask(Nx, Ny, 1)
+maskbr := newVectorMask(Nx, Ny, 1)
+//top left particle
+for i:=1; i<=2; i++{
+	for j:=4; j<=5; j++{
+		//r := index2coord(i, j, 0)
+		//x := r.X()
+		//y := r.Y()
+		masktl.setVector(i, j, 0, vector(0, 0, amptl*driv))
+	}
+}
+//top right particle
+for i:=4; i<=5; i++{
+	for j:=4; j<=5; j++{
+		masktr.setVector(i, j, 0, vector(0, 0, amptr*driv))
+	}
+}
+//bottom right particle
+for i:=4; i<=5; i++{
+	for j:=1; j<=2; j++{
+		maskbr.setVector(i, j, 0, vector(0, 0, ampbr*driv))
+	}
+}
+
+B_ext.add(masktl,sin(w*t+phtl))
+B_ext.add(masktr,sin(w*t+phtr))
+B_ext.add(maskbr,sin(w*t+phbr))
+
+run(200/f)
+autosave(m,1/(10*f))
+tableautosave(1/(10*f))
+run(time)
+print(ti - now().Nanosecond())
